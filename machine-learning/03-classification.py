@@ -28,7 +28,7 @@ def knn_iris():
 
     # KNN algorithm estimator
     estimator = KNeighborsClassifier(n_neighbors=5)
-    estimator.fit(x_train, y_train);
+    estimator.fit(x_train, y_train)
 
     # predict the test data
     y_predict = estimator.predict(x_test)
