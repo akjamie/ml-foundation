@@ -12,7 +12,7 @@ def prompt_with_tongyi(template: ChatPromptTemplate, human_input: str) -> str:
     llm = ChatTongyi(
         model_name='qwen-turbo',
         dashscope_api_key=os.getenv('DASHCOPE_API_KEY'),
-        temperature=0.9,
+        temperature=0,
         top_p=0.8,
         streaming=True,
     )
@@ -25,7 +25,7 @@ def prompt_with_gemini(template: ChatPromptTemplate, human_input: str) -> str:
     llm = ChatGoogleGenerativeAI(
         model='gemini-pro',
         google_api_key=os.getenv('GOOGLE_API_KEY'),
-        temperature=0.9,
+        temperature=0,
         top_p=0.8,
         streaming=True,
     )
@@ -63,3 +63,37 @@ if __name__ == '__main__':
 
     # os.environ["https_proxy"] = "http://127.0.0.1:7890"
     # print(prompt_with_gemini(chat_prompt, '我想为我的女朋友购买一些花。她喜欢粉色和紫色。你有什么建议吗?'))
+
+
+    # Tree of thought demo
+    tot_template = """
+    设一个顾客在鲜花网站上询问：“我想为我的妻子购买一束鲜花，但我不确定应该选择哪种鲜花。她喜欢淡雅的颜色和花香。”
+    
+    AI（使用 ToT 框架）：
+    
+    思维步骤 1：理解顾客的需求。
+    顾客想为妻子购买鲜花。
+    顾客的妻子喜欢淡雅的颜色和花香。
+    
+    思维步骤 2：考虑可能的鲜花选择。
+    候选 1：百合，因为它有淡雅的颜色和花香。
+    候选 2：玫瑰，选择淡粉色或白色，它们通常有花香。
+    候选 3：紫罗兰，它有淡雅的颜色和花香。
+    候选 4：桔梗，它的颜色淡雅但不一定有花香。
+    候选 5：康乃馨，选择淡色系列，它们有淡雅的花香。
+    
+    思维步骤 3：根据顾客的需求筛选最佳选择。
+    百合和紫罗兰都符合顾客的需求，因为它们都有淡雅的颜色和花香。
+    淡粉色或白色的玫瑰也是一个不错的选择。
+    桔梗可能不是最佳选择，因为它可能没有花香。
+    康乃馨是一个可考虑的选择。
+    
+    思维步骤 4：给出建议。
+    “考虑到您妻子喜欢淡雅的颜色和花香，我建议您可以选择百合或紫罗兰。淡粉色或白色的玫瑰也是一个很好的选择。希望这些建议能帮助您做出决策！”
+    """
+    system_prompt_tot = SystemMessagePromptTemplate.from_template(tot_template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_prompt_tot, human_prompt])
+
+    print(prompt_with_tongyi(chat_prompt, '我想学习一种深度学习框架，想入手快并且能快速输出项目成果的.'))
+
+

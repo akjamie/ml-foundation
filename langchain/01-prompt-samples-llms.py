@@ -58,13 +58,13 @@ if __name__ == "__main__":
 
     prompt = "You are a content creator. Write me a tweet about {topic}."
     topic = "how ai is really cool"
-    resp = prompt_with_gemini(prompt, topic)
-    print(f'response from gemini: {json.dumps(resp, indent=2)}\n')
+    # resp = prompt_with_gemini(prompt, topic)
+    # print(f'response from gemini: {json.dumps(resp, indent=2)}\n')
 
     resp = prompt_with_openai(prompt, topic)
     print(f'response from openai: {json.dumps(resp, indent=2)}\n')
 
     # no need proxy for Tongyi
-    os.environ.pop("https_proxy")
-    resp = prompt_with_tongyi(prompt, topic)
-    print(f'response from openai: {json.dumps(resp, indent=2)}\n')
+    # os.environ.pop("https_proxy")
+    # resp = prompt_with_tongyi(prompt, topic)
+    # print(f'response from openai: {json.dumps(resp, indent=2)}\n')
