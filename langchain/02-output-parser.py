@@ -2,14 +2,15 @@ import logging
 import os
 
 import dotenv
+from langchain_community.llms import Tongyi
+from langchain_core.output_parsers import PydanticOutputParser
 
 dotenv.load_dotenv()
 
 import pandas as pd
 from pydantic import BaseModel, Field
-from langchain.output_parsers import PydanticOutputParser, OutputFixingParser, RetryWithErrorOutputParser
+from langchain.output_parsers import OutputFixingParser, RetryWithErrorOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain.llms.tongyi import Tongyi
 from langchain_google_genai import GoogleGenerativeAI
 
 logging.basicConfig()

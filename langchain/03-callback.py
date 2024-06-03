@@ -1,13 +1,13 @@
 from loguru import logger
 import os
 import dotenv
+from langchain_core.prompts import PromptTemplate
 
 dotenv.load_dotenv()
 
 from langchain.callbacks import FileCallbackHandler
 from langchain.chains import LLMChain
 from langchain_community.llms.tongyi import Tongyi
-from langchain.prompts import PromptTemplate
 
 logfile = "output.log"
 logger.add(logfile, colorize=True, enqueue=True)

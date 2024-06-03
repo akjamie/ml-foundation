@@ -3,6 +3,7 @@ import os
 
 # from adodbapi.is64bit import os
 from dotenv import load_dotenv
+from langchain_core.prompts import PromptTemplate
 
 load_dotenv()
 
@@ -10,7 +11,6 @@ load_dotenv()
 # simple langchain demo with google gemini-pro
 def prompt_with_gemini(prompt: str, topic: str) -> str:
     from langchain_google_genai import ChatGoogleGenerativeAI
-    from langchain.prompts import PromptTemplate
     from langchain.chains import LLMChain
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=GOOGLE_API_KEY)
@@ -27,7 +27,6 @@ def prompt_with_openai(prompt: str, topic: str) -> str:
         OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
         OPENAI_ORGANIZATION = os.getenv("OPENAI_ORGANIZATION")
         from langchain_openai import OpenAI
-        from langchain.prompts import PromptTemplate
         from langchain.chains import LLMChain
 
         llm = OpenAI(model_name="gpt-3.5-turbo-instruct", openai_api_key=OPENAI_API_KEY,
@@ -41,7 +40,6 @@ def prompt_with_openai(prompt: str, topic: str) -> str:
 
 def prompt_with_tongyi(prompt: str, topic: str) -> str:
     from langchain_community.llms import Tongyi
-    from langchain.prompts import PromptTemplate
     from langchain.chains import LLMChain
 
     DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY")
@@ -61,10 +59,10 @@ if __name__ == "__main__":
     # resp = prompt_with_gemini(prompt, topic)
     # print(f'response from gemini: {json.dumps(resp, indent=2)}\n')
 
-    resp = prompt_with_openai(prompt, topic)
-    print(f'response from openai: {json.dumps(resp, indent=2)}\n')
-
-    # no need proxy for Tongyi
-    # os.environ.pop("https_proxy")
-    # resp = prompt_with_tongyi(prompt, topic)
+    # resp = prompt_with_openai(prompt, topic)
     # print(f'response from openai: {json.dumps(resp, indent=2)}\n')
+
+    #no need proxy for Tongyi
+    os.environ.pop("https_proxy")
+    resp = prompt_with_tongyi(prompt, topic)
+    print(f'response from openai: {json.dumps(resp, indent=2)}\n')

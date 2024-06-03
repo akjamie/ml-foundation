@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 import requests
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
-from langchain.tools import BaseTool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import initialize_agent, AgentType
+from langchain_core.tools import BaseTool
 
 load_dotenv()
 

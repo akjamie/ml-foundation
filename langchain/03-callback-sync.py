@@ -5,7 +5,9 @@ import dotenv
 from langchain.chains.conversation.base import ConversationChain
 from langchain.globals import set_debug
 from langchain_community.callbacks import get_openai_callback
-from langchain_core.callbacks import CallbackManager
+from langchain_core.callbacks import AsyncCallbackHandler, BaseCallbackHandler, CallbackManager
+from langchain_core.messages import HumanMessage
+from langchain_core.outputs import LLMResult
 
 set_debug(True)
 
@@ -13,8 +15,6 @@ dotenv.load_dotenv()
 from typing import Any, Dict, List
 
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain.schema import LLMResult, HumanMessage
-from langchain.callbacks.base import AsyncCallbackHandler, BaseCallbackHandler
 
 
 # 创建同步回调处理器

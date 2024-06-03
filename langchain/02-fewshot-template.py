@@ -1,9 +1,10 @@
 import os
 import dotenv
+from langchain_core.example_selectors import SemanticSimilarityExampleSelector
+from langchain_core.prompts import FewShotPromptTemplate, PromptTemplate
 
 dotenv.load_dotenv()
 from langchain_community.llms import Tongyi
-from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import DashScopeEmbeddings
 
@@ -42,16 +43,9 @@ if __name__ == "__main__":
             "ad_copy": "向日葵象征着坚韧和乐观，是你鼓励亲朋好友的最好方式。"
         }
     ]
-
-    # 2. 创建一个提示模板
-    from langchain.prompts.prompt import PromptTemplate
     template="鲜花类型: {flower_type}\n场合: {occasion}\n文案: {ad_copy}"
     prompt_sample = PromptTemplate(input_variables=["flower_type", "occasion", "ad_copy"],
                                    template=template)
-    # print(prompt_sample.format(**samples[0]))
-
-    # 3. 创建一个FewShotPromptTemplate对象
-    from langchain.prompts.few_shot import FewShotPromptTemplate
     prompt = FewShotPromptTemplate(
         examples=samples,
         example_prompt=prompt_sample,

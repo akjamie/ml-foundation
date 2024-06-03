@@ -2,8 +2,10 @@ import os
 from typing import List
 
 import dotenv
+from langchain_openai import ChatOpenAI
+
 dotenv.load_dotenv()
-from langchain_community.chat_models import ChatOpenAI, ChatTongyi
+from langchain_community.chat_models import ChatTongyi
 from langchain_core.messages import SystemMessage, BaseMessage, HumanMessage, AIMessage
 from langchain_core.prompts import HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
