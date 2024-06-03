@@ -3,9 +3,10 @@ from langchain_core.language_models import BaseLLM
 from langchain_core.prompts import PromptTemplate
 
 # 导入所需的类
-from langchain.output_parsers import PydanticOutputParser, OutputFixingParser, RetryWithErrorOutputParser
+from langchain.output_parsers import OutputFixingParser, RetryWithErrorOutputParser
 from pydantic import BaseModel, Field
 from typing import List
+from langchain_core.output_parsers import PydanticOutputParser
 
 
 # 定义一个名为TextParsing的模型，描述了如何解析大V信息

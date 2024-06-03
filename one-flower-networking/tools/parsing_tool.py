@@ -1,7 +1,7 @@
 # 导入所需的类
-from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from typing import List
+from langchain_core.output_parsers import PydanticOutputParser
 
 # 定义一个名为TextParsing的模型，描述了如何解析大V信息
 class TextParsing(BaseModel):
