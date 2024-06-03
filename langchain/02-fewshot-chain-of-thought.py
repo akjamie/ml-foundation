@@ -1,10 +1,10 @@
 import os
 import dotenv
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 dotenv.load_dotenv()
 
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -17,7 +17,7 @@ def prompt_with_tongyi(template: ChatPromptTemplate, human_input: str) -> str:
         streaming=True,
     )
 
-    return llm(template.format_prompt(human_input=human_input).to_messages())
+    return llm.invoke(template.format_prompt(human_input=human_input).to_messages())
 
 
 def prompt_with_gemini(template: ChatPromptTemplate, human_input: str) -> str:
@@ -30,7 +30,7 @@ def prompt_with_gemini(template: ChatPromptTemplate, human_input: str) -> str:
         streaming=True,
     )
 
-    return llm(template.format_prompt(human_input=human_input).to_messages())
+    return llm.invoke(template.format_prompt(human_input=human_input).to_messages())
 
 if __name__ == '__main__':
     role_template = '你是一个为花店电商公司工作的AI助手, 你的目标是帮助客户根据他们的喜好做出明智的决定'
