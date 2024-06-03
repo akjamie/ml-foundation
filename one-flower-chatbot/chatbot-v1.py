@@ -3,10 +3,9 @@ import os
 import dotenv
 
 from langchain_community.chat_models import ChatTongyi
+from langchain_core.messages import HumanMessage, SystemMessage
 
 dotenv.load_dotenv()
-# 导入所需的库和模块
-from langchain.schema import HumanMessage, SystemMessage
 
 
 # 定义一个命令行聊天机器人的类

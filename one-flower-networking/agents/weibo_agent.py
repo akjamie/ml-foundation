@@ -1,10 +1,10 @@
 # 导入一个搜索UID的工具
 from langchain.agents import AgentType
-from langchain.agents import initialize_agent, Tool
-# 导入所需的库
-from langchain.prompts import PromptTemplate
+from langchain.agents import initialize_agent
 from langchain_core.language_models import BaseLLM
 from tools.search_tool import get_UID
+from langchain_core.prompts import PromptTemplate
+from langchain_core.tools import Tool
 
 
 # 通过LangChain代理找到UID的函数
