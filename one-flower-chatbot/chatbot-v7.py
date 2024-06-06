@@ -107,13 +107,14 @@ class ChatbotWithRetrieval:
 
         self.conversation_history += f"You: {user_input}\nChatbot: {response}\n"
 
-        if (None != self.conversation_history and len(self.conversation_history) > 1000):
-            conversation_pattern = r"(You: .*\nChatbot: .*\n)+"
+        if (None != self.conversation_history and len(self.conversation_history) > 300):
+            conversation_pattern = r"(You: .*\nChatbot: .*)+"
             # Find all conversation blocks
             conversations = re.findall(conversation_pattern, self.conversation_history, re.MULTILINE)
             # Get the last conversation block
-            last_3_conversation = conversations[-3]
-            self.conversation_history = last_3_conversation
+            if(None != conversations and len(conversations) > 3):
+                last_3_conversation = conversations[-3:]
+                self.conversation_history = "\n".join(last_3_conversation)
 
         return self.conversation_history
 
