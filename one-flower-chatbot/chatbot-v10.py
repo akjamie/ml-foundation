@@ -8,12 +8,12 @@ import dotenv
 import gradio as gr
 from langchain import hub
 from langchain.globals import set_debug
-from langchain_community.chat_models import ChatTongyi
+from langchain_community.chat_models import ChatTongyi, ChatOllama
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
-from langchain_community.embeddings import DashScopeEmbeddings
+from langchain_community.embeddings import IpexLLMBgeEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -33,22 +33,20 @@ class ChatbotWithRetrieval:
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=5)
         all_splits = text_splitter.split_documents(self.documents)
-        embeddings = DashScopeEmbeddings(model="text-embedding-v2",
-                                         dashscope_api_key=self.get_api_key())
+
+        embeddings = IpexLLMBgeEmbeddings(
+            model_name="BAAI/bge-large-en-v1.5",
+            model_kwargs={"device": "xpu"},
+            encode_kwargs={"normalize_embeddings": True},
+        )
 
         self.vectorstore = FAISS.from_documents(all_splits, embeddings)
-        self.llm = ChatTongyi(dashscope_api_key=self.get_api_key())
+        # self.llm = ChatTongyi(dashscope_api_key=self.get_api_key())
+        self.llm = ChatOllama(model="llama3", format="json", temperature=0)
 
         self.retriever = self.vectorstore.as_retriever()
         self.conversation_history = ""
-        # template = """
-        #     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-        #     Question: {question}
-        #     Context: {context}
-        #     Answer:
-        # """
         self.prompt = hub.pull("rlm/rag-prompt")
-        # self.prompt = ChatPromptTemplate.from_template(template)
 
         self.qa = ({
                        "context": self.retriever.with_config(run_name="Docs"),
@@ -58,7 +56,6 @@ class ChatbotWithRetrieval:
                    | self.llm
                    | StrOutputParser()
                    )
-
     @staticmethod
     def get_api_key() -> str:
         return os.getenv("DASHSCOPE_API_KEY")
@@ -101,8 +98,7 @@ class ChatbotWithRetrieval:
             response = self.qa.invoke({"question": user_input})
             print(f"Chatbot: {response}")
 
-    # @proxy("http://127.0.0.1:7890")
-    # @traceable()
+    @traceable()
     def get_response(self, user_input):
         response = self.qa.invoke(user_input)
 
@@ -113,23 +109,27 @@ class ChatbotWithRetrieval:
             # Find all conversation blocks
             conversations = re.findall(conversation_pattern, self.conversation_history, re.MULTILINE)
             # Get the last conversation block
-            if(None != conversations and len(conversations) > 3):
+            if (None != conversations and len(conversations) > 3):
                 last_3_conversation = conversations[-3:]
                 self.conversation_history = "\n".join(last_3_conversation)
 
         return self.conversation_history
 
+    def chat_loop(self):
+        print("Chatbot 已启动! 输入'exit'来退出程序。")
+        while True:
+            user_input = input("你: ")
+            # 如果用户输入“exit”，则退出循环
+            if user_input.lower() == 'exit':
+                print("再见!")
+                break
+            print(f'Retriever search result:{self.retriever.invoke(user_input)}')
+            response = self.qa.invoke(user_input)
+            print(f"Chatbot: {response}")
+
 
 if __name__ == "__main__":
+    os.environ["SYCL_CACHE_PERSISTENT"] = "1"
+    os.environ["BIGDL_LLM_XMX_DISABLED"] = "1"
     bot = ChatbotWithRetrieval("docs")
-    # bot.get_response({"question":"易速鲜花"})
-
-    interface = gr.Interface(
-        fn=bot.get_response,
-        inputs="text",
-        outputs="text",
-        live=False,
-        title="One flow chatbot",
-        description="Input your question, and the bot will give you the answer."
-    )
-    interface.launch()
+    bot.chat_loop()

@@ -6,18 +6,15 @@ from typing import List
 
 import dotenv
 import gradio as gr
-from langchain import hub
 from langchain.globals import set_debug
-from langchain_community.chat_models import ChatTongyi
+from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
-from langchain_community.embeddings import DashScopeEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings, DashScopeEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from common.annotations import proxy
 
 dotenv.load_dotenv()
 set_debug(True)
@@ -33,22 +30,22 @@ class ChatbotWithRetrieval:
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=5)
         all_splits = text_splitter.split_documents(self.documents)
+        # embeddings = OllamaEmbeddings(model="llama3")
         embeddings = DashScopeEmbeddings(model="text-embedding-v2",
                                          dashscope_api_key=self.get_api_key())
 
         self.vectorstore = FAISS.from_documents(all_splits, embeddings)
-        self.llm = ChatTongyi(dashscope_api_key=self.get_api_key())
+        self.llm = ChatOllama(model="llama3")
 
         self.retriever = self.vectorstore.as_retriever()
         self.conversation_history = ""
-        # template = """
-        #     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-        #     Question: {question}
-        #     Context: {context}
-        #     Answer:
-        # """
-        self.prompt = hub.pull("rlm/rag-prompt")
-        # self.prompt = ChatPromptTemplate.from_template(template)
+        template = """
+            You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+            Question: {question}
+            Context: {context}
+            Answer:
+        """
+        self.prompt = ChatPromptTemplate.from_template(template)
 
         self.qa = ({
                        "context": self.retriever.with_config(run_name="Docs"),
@@ -122,7 +119,7 @@ class ChatbotWithRetrieval:
 
 if __name__ == "__main__":
     bot = ChatbotWithRetrieval("docs")
-    # bot.get_response({"question":"易速鲜花"})
+    bot.get_response({"question":"易速鲜花"})
 
     interface = gr.Interface(
         fn=bot.get_response,
