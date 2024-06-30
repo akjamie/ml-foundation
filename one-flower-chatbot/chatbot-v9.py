@@ -5,19 +5,15 @@ import re
 from typing import List
 
 import dotenv
-import gradio as gr
 from langchain import hub
 from langchain.globals import set_debug
-from langchain_community.chat_models import ChatTongyi, ChatOllama
+from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
 from langchain_community.embeddings import IpexLLMBgeEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
-from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from common.annotations import proxy
 
 dotenv.load_dotenv()
 set_debug(True)
@@ -41,19 +37,11 @@ class ChatbotWithRetrieval:
         )
 
         self.vectorstore = FAISS.from_documents(all_splits, embeddings)
-        # self.llm = ChatTongyi(dashscope_api_key=self.get_api_key())
         self.llm = ChatOllama(model="llama3", format="json", temperature=0)
 
         self.retriever = self.vectorstore.as_retriever()
         self.conversation_history = ""
-        # template = """
-        #     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-        #     Question: {question}
-        #     Context: {context}
-        #     Answer:
-        # """
         self.prompt = hub.pull("rlm/rag-prompt")
-        # self.prompt = ChatPromptTemplate.from_template(template)
 
         self.qa = ({
                        "context": self.retriever.with_config(run_name="Docs"),
@@ -63,23 +51,6 @@ class ChatbotWithRetrieval:
                    | self.llm
                    | StrOutputParser()
                    )
-
-    def grade(self, question: str, document: str) -> str:
-        template = """<|begin_of_text|><|start_header_id|>system<end_header_id|> 
-        You are a grader assessing relevance 
-        of a retrieved document to a user question. If the document contains keywords related to the user question, 
-        grade it as relevant. It does not need to be a stringent test. The goal is to filter out erroneous 
-        retrievals. Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the 
-        question. \n
-        Provide the binary score as a JSON with a single key 'score' and no preamble or explanation.
-        <|eot_id|><|start_header_id|>user<|end_header_id>
-        Here is the retrieved document: \n\n {document} \n\n
-        Here is the user question: {question} \n 
-        <|eot_id|><|start_header_id|>assistant<|end_header_id>
-        """
-        prompt = PromptTemplate(template=template, input_variables=["document", "question"], )
-
-        self.grader = prompt | self.llm | JsonOutputParser()
 
     @staticmethod
     def get_api_key() -> str:

@@ -9,6 +9,7 @@ def proxy(value: str, http_proxy="", https_proxy=""):
             if value is not None:
                 os.environ["https_proxy"] = value
                 os.environ["http_proxy"] = value
+                os.environ["no_proxy"] = "localhost,127.0.0.1"
 
             # todo: to support http_proxy & https_proxy
 
